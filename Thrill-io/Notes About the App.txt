@@ -1,0 +1,6 @@
+In my code, there are some functions related to retrieving movies and web links, marking bookmarks as kid-friendly, 
+and enabling users to share bookmark details (i.e. if they are a content editor and not just a regular user).
+
+Initially, the application was designed to work through the console, before the JSP files and SQL functionality were added.
+
+As a result, my most recent version of my application does not include any of the specific functionalities mentioned above.
