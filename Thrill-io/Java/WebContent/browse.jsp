@@ -88,17 +88,28 @@
 
 				<div class="add-book-section">
 					<h2>Add New Book</h2>
-					<form method="POST" action="${pageContext.request.contextPath}/bookmark/addbook"
-						class="add-book-form">
-						<div class="input-group">
-							<label for="book_url">Goodreads Book URL</label>
-							<input type="text" name="book_url" id="book_url"
-								placeholder="https://www.goodreads.com/book/show/...">
-						</div>
-						<div class="form-actions">
-							<button type="submit" name="submitNewBook" class="button button-primary">Add Book</button>
-						</div>
-					</form>
+
+					<%-- Display error message if present --%>
+						<c:if test="${not empty addBookError}">
+							<p class="error-message">${addBookError}</p>
+						</c:if>
+						<%-- Display success message if present --%>
+							<c:if test="${not empty addBookSuccess}">
+								<p class="success-message">${addBookSuccess}</p>
+							</c:if>
+
+							<form method="POST" action="${pageContext.request.contextPath}/bookmark/addbook"
+								class="add-book-form">
+								<div class="input-group">
+									<label for="book_url">Goodreads Book URL</label>
+									<input type="text" name="book_url" id="book_url"
+										placeholder="https://www.goodreads.com/book/show/...">
+								</div>
+								<div class="form-actions">
+									<button type="submit" name="submitNewBook" class="button button-primary">Add
+										Book</button>
+								</div>
+							</form>
 				</div>
 			</main>
 		</div>
