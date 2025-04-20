@@ -1,150 +1,106 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<%@ taglib
-    prefix="c"
-    uri="http://java.sun.com/jsp/jstl/core" 
-%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+	<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+		<!DOCTYPE html>
+		<html>
 
-<%@page import="java.sql.DriverManager"%>
-<%@page import="java.sql.ResultSet"%>
-<%@page import="java.sql.Statement"%>
-<%@page import="java.sql.PreparedStatement"%>
-<%@page import="java.sql.Connection"%>
-<%@ page import="java.io.*,java.sql.*" %>
+		<head>
+			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/thrillio.css" />
+			<script src="${pageContext.request.contextPath}/js/thrillio.js"></script>
+			<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+			<title>ShelfIt - Sign Up</title>
+		</head>
 
-    
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" >
-<link rel="stylesheet" type="text/css" href="/ThrillioWeb_Heroku/css/thrillio.css"/>
-<script src="/ThrillioWeb_Heroku/js/thrillio.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<body>
+			<div class="login-container">
+				<div class="image-section">
+					<div class="image-content">
+						<h1>Join Us Today.</h1>
+						<p>Start your reading journey with ShelfIt</p>
+					</div>
+				</div>
 
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    
-    <script type="text/javascript">
-    $(document).ready(function(){
-        $("#signup_email").change(function(){
-            var email = $(this).val();
-            //if(email.length >= 3){
-            $(".status").html("<img src='images/loading.gif'><font color=gray> Checking availability...</font>");
-             $.ajax({
-                type: "POST",
-                url: "/ThrillioWeb_Heroku/auth/signup",
-                data: "signup_email="+ email,
-                success: function(msg){
-              	  $(".status").html(msg);
-                }
-            }); 
-            //}
-            //else{
+				<div class="form-section">
+					<div class="logo">
+						<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" width="120" height="60">
+							<circle cx="200" cy="95" r="75" fill="#f0e8dd" />
+							<rect x="125" y="110" width="150" height="4" fill="#3d3d3d" rx="1" ry="1" />
+							<rect x="125" y="114" width="150" height="2" fill="#5a5a5a" rx="1" ry="1" />
+							<path d="M125 110 L125 95 A5,5 0 0 1 135,95 L135 110" fill="#5a5a5a" />
+							<path d="M275 110 L275 95 A5,5 0 0 0 265,95 L265 110" fill="#5a5a5a" />
+							<rect x="140" y="70" width="12" height="40" fill="#c2e7d9" rx="1" ry="1" />
+							<rect x="155" y="75" width="14" height="35" fill="#f6b3c5" rx="1" ry="1" />
+							<rect x="172" y="80" width="10" height="30" fill="#f0cc8b" rx="1" ry="1" />
+							<rect x="185" y="65" width="15" height="45" fill="#a9c7e8" rx="1" ry="1" />
+							<rect x="203" y="75" width="11" height="35" fill="#d9bbde" rx="1" ry="1" />
+							<rect x="217" y="82" width="13" height="28" fill="#b8e0d2" rx="1" ry="1" />
+							<rect x="233" y="70" width="9" height="40" fill="#f9d2b0" rx="1" ry="1" />
+							<rect x="245" y="78" width="14" height="32" fill="#c3e2dd" rx="1" ry="1" />
+							<path d="M190 45 L210 45 L210 65 L200 60 L190 65 Z" fill="#e6cbb3" stroke="#d9bda3"
+								stroke-width="1" />
+							<text x="200" y="155" font-family="Helvetica, Arial, sans-serif" font-size="30"
+								font-weight="500" text-anchor="middle" fill="#3d3d3d">ShelfIt</text>
+						</svg>
+					</div>
 
-            //$(".status").html("<font color=red>Username should be <b>3</b> character long.</font>");
-            //}
+					<div class="register-header">
+						<h2>Create Account</h2>
+					</div>
 
-        });
-    });
-    </script>
-    
-    
+					<form name="signUpForm" method="POST" action="${pageContext.request.contextPath}/auth/signup">
+						<c:if test="${not empty signup_error}">
+							<div class="error-message">${signup_error}</div>
+						</c:if>
 
+						<div class="input-group">
+							<label for="signup_email">EMAIL ADDRESS <span class="required-field">*</span></label>
+							<input type="email" name="signup_email" id="signup_email" pattern=".+\.[A-Za-z]{2,}($|\n)"
+								oninput="printSignupEmailErrorOnWebpage()" required>
+							<span class="emailformat_error"></span>
+							<span class="status"></span>
+						</div>
 
+						<div class="input-group">
+							<label for="signup_password">PASSWORD <span class="required-field">*</span></label>
+							<input type="password" name="signup_password" id="signup_password" required>
+						</div>
 
-<!--<script>
+						<div class="input-group">
+							<label for="signup_firstName">FIRST NAME <span class="required-field">*</span></label>
+							<input type="text" name="signup_firstName" id="signup_firstName" pattern="[A-Za-z\s\-']+"
+								required>
+						</div>
 
-var signup_error = "<%=request.getAttribute("signup_error")%>)";
+						<div class="input-group">
+							<label for="signup_lastName">LAST NAME <span class="required-field">*</span></label>
+							<input type="text" name="signup_lastName" id="signup_lastName" pattern="[A-Za-z\s\-']+"
+								required>
+						</div>
 
-if(signup_error != "" || signup_error != null || signup_error != "null"){
-	alert(signup_error); 
-}
-</script>-->
+						<div class="input-group">
+							<label for="gender_dropdown">GENDER</label>
+							<select name="gender_dropdown" id="gender_dropdown" class="form-select">
+								<option value=""></option>
+								<option value="MALE">Male</option>
+								<option value="FEMALE">Female</option>
+								<option value="OTHER">Other</option>
+							</select>
+						</div>
 
-<title>Sign Up</title>
-</head>
-<body>
-	<div style="height:65px;align: center;background: #2787db;font-family: Arial;color: white;"">
-		<br><b>
-		<a href="" style="font-family:garamond;font-size:34px;margin:0 0 0 10px;color:white;text-decoration: none;">thrill.io</a></b>          
-	</div>
-	<br><br>
-	<form name="signUpForm" method="POST" action="<%=request.getContextPath()%>/auth/signup">
-	
-	
-		<c:if test="${not empty signup_error}">
-	    	<div id="signup_error">${signup_error}</div><br>
-	    </c:if>
-	    
-      <fieldset>
-	    <legend>Sign up</legend>	    
-	    <table>
-	    	<tr>
-	    		<td><label><span class="required_field">* </span>Email:</label></td>
-        		<td>
-        			<input type="email" name="signup_email" id = "signup_email" pattern = ".+\.[A-Za-z]{2,}($|\n)" value="" oninput="printSignupEmailErrorOnWebpage()" required><!--<span><button name = "checkif_emailexists" id = "checkif_emailexists" onclick="location.href = '/ThrillioWeb_Heroku/check_email.jsp'">Check Email Address</button></span>--><span class="emailformat_error"></span> <span class = "status"></span> <br>        			
-        		</td>
-        	</tr>
-        	<tr>
-        		<td><label><span class="required_field">* </span>Password:</label></td>
-        		<td>
-        			<input type="password" name="signup_password" id = "signup_password" value="" required><br>
-        		</td>        
-        	</tr>
-        	<tr>
-	    		<td><label><span class="required_field">* </span>First Name:</label></td>
-        		<td>
-        			<input type="text" name="signup_firstName" id = "signup_firstName" pattern="[A-Za-z\s\-']+" value="" required><br>        			
-        		</td>
-        	</tr>
-        	<tr>
-	    		<td><label><span class="required_field">* </span>Last Name:</label></td>
-        		<td>
-        			<input type="text" name="signup_lastName" id = "signup_lastName" pattern="[A-Za-z\s\-']+" value="" required><br>        			
-        		</td>
-        	</tr>
-        	<tr>
-	    		<td><label>Gender:</label></td>
-        		<td>
-        			<select name = "gender_dropdown">
-        				<option></option>
-				        <option>MALE</option>
-				        <option>FEMALE</option>
-				        <option>OTHER</option>
-			      	</select><br>        			
-        		</td>
-        	</tr>
-        	<!--<tr>
-	    		<td><label>User Type:</label></td>
-        		<td>
-        			<input type="text" name="usertype"><br>        			
-        		</td>
-        	</tr>-->
-        	<tr>
-        		<td>&nbsp;</td>
-        		<td><a href="<%=request.getContextPath()%>/auth/signup"><input type="submit" name="submitRegistrationForm" id = "signUpPage_signUpButton" value="Sign Up" onclick="validateSignUpForm()"></a></td>
-        	</tr>
-        	
-        	<tr>
-        		<td><span class="required_field">*</span> = Required fields</td>
-        	</tr>
-        		
-        </table>
-	  </fieldset>      
-    </form>
-    
-    <form method="POST" action="<%=request.getContextPath()%>/login.jsp">
-	    <table>
-	     	<tr>
-	     		<td><label>Already have an account?</label></td>
-	    		</tr>
-	    	
-	     	<tr>
-	     		<td><a href="<%=request.getContextPath()%>/auth"><input type="submit" name="submitLoginForm" value="Log In"></a></td>
-	     	</tr>   
-	      	
-	    </table>    
-    </form>
-    
-</body>
-</html>
+						<button type="submit" name="submitRegistrationForm" class="login-btn"
+							onclick="validateSignUpForm()">CREATE ACCOUNT</button>
+					</form>
 
+					<div class="signup-section">
+						<p>Already have an account?</p>
+						<form method="POST" action="${pageContext.request.contextPath}/login.jsp">
+							<button type="submit" name="submitLoginForm" value="Log In" class="signup-btn">LOG
+								IN</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</body>
+
+		</html>

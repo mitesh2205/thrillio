@@ -19,9 +19,9 @@ import thrillio.managers.UserManager;
 
 public class UserDao {
 
-    private static final String DB_URL = "jdbc:mysql://mysql:3306/jid_thrillio?useSSL=false";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/jid_thrillio?useSSL=false";
     private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "";
+    private static final String DB_PASSWORD = "";  // Update this if your XAMPP MySQL has a password
 
     public List<User> getUsers() {
         return DataStore.getUsers();

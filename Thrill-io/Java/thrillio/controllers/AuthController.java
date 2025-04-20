@@ -64,21 +64,21 @@ public class AuthController extends HttpServlet {
                     if (userId != -1) {
                         HttpSession session = request.getSession();
                         session.setAttribute("userId", userId);
-                        request.getRequestDispatcher("/bookmark/mybooks").forward(request, response);
+                        response.sendRedirect(request.getContextPath() + "/bookmark/mybooks");
                     } else {
                         HttpSession session = request.getSession();
                         session.setAttribute("login_error", "Your email and/or password is incorrect!");
-                        response.sendRedirect(request.getContextPath() + "/auth");
+                        response.sendRedirect(request.getContextPath() + "/login.jsp");
                     }
                 } else {
-                    request.getRequestDispatcher("/login.jsp").forward(request, response);
+                    response.sendRedirect(request.getContextPath() + "/login.jsp");
                 }
             }
         }
         // Logout handling
         else {
             request.getSession().invalidate();
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/login.jsp");
         }
     }
 

@@ -20,14 +20,17 @@ import thrillio.entities.WebLink;
 import thrillio.managers.BookmarkManager;
 
 public class BookmarkDao {
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/jid_thrillio?useSSL=false";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "";  // Update this if your XAMPP MySQL has a password
     
     public List<List<Bookmark>> getBookmarks() {
         return DataStore.getBookmarks();
     }
 
     public void saveUserBookmark(UserBookmark userBookmark) {
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/jid_thrillio?useSSL=false",
-                "root", ""); Statement stmt = conn.createStatement();) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                Statement stmt = conn.createStatement();) {
             if (userBookmark.getBookmark() instanceof Book) {
                 saveUserBook(userBookmark, stmt);
             }
@@ -43,8 +46,8 @@ public class BookmarkDao {
     }
 
     public void deleteUserBookmark(UserBookmark userBookmark) {
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/jid_thrillio?useSSL=false",
-                "root", ""); Statement stmt = conn.createStatement();) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                Statement stmt = conn.createStatement();) {
             deleteUserBook(userBookmark, stmt);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -61,8 +64,8 @@ public class BookmarkDao {
         int kidFriendlyStatus = bookmark.getKidFriendlyStatus().ordinal();
         long userId = bookmark.getKidFriendlyMarkedBy().getId();
 
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/jid_thrillio?useSSL=false",
-                "root", ""); Statement stmt = conn.createStatement();) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                Statement stmt = conn.createStatement();) {
             String query = "Update Book set kid_friendly_status = " + kidFriendlyStatus
                     + ", kid_friendly_marked_by = " + userId + " where id = " + bookmark.getId();
             stmt.executeUpdate(query);
@@ -71,8 +74,8 @@ public class BookmarkDao {
 
     public void sharedByInfo(Bookmark bookmark) throws SQLException {
         long userId = bookmark.getSharedBy().getId();
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/jid_thrillio?useSSL=false",
-                "root", ""); Statement stmt = conn.createStatement();) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                Statement stmt = conn.createStatement();) {
             String query = "Update Book set shared_by = " + userId + " where id = " + bookmark.getId();
             stmt.executeUpdate(query);
         }
@@ -86,8 +89,8 @@ public class BookmarkDao {
             e.printStackTrace();
         }
 
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/jid_thrillio?useSSL=false",
-                "root", ""); Statement stmt = conn.createStatement();) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                Statement stmt = conn.createStatement();) {
             String query = "";
             if (!isBookmarked) {
                 query = "Select b.id, title, book_url, image_url, publication_year, GROUP_CONCAT(a.name SEPARATOR ',') AS authors, book_genre_id, "
@@ -131,8 +134,8 @@ public class BookmarkDao {
             e.printStackTrace();
         }
 
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/jid_thrillio?useSSL=false",
-                "root", ""); Statement stmt = conn.createStatement();) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                Statement stmt = conn.createStatement();) {
             String query = "Select b.id, title, book_url, image_url, publication_year, p.name, GROUP_CONCAT(a.name SEPARATOR ',') AS authors, book_genre_id, goodreads_rating, created_date"
                     + " from Book b, Publisher p, Author a, Book_Author ba " + "where b.id = " + bookId
                     + " and b.publisher_id = p.id and b.id = ba.book_id and ba.author_id = a.id group by b.id";
@@ -164,8 +167,8 @@ public class BookmarkDao {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
 
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/jid_thrillio?useSSL=false",
-                "root", ""); Statement stmt = conn.createStatement();) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                Statement stmt = conn.createStatement();) {
             title = title.replace("'", "''");
             authorName = authorName.replace("'", "''");
             publisherName = publisherName.replace("'", "''");
@@ -199,8 +202,8 @@ public class BookmarkDao {
 
     public List<WebLink> getAllWebLinks() {
         List<WebLink> result = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/jid_thrillio?useSSL=false",
-                "root", ""); Statement stmt = conn.createStatement();) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                Statement stmt = conn.createStatement();) {
             String query = "SELECT * FROM WebLink";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
@@ -223,8 +226,8 @@ public class BookmarkDao {
 
     public List<WebLink> getWebLinks(WebLink.DownloadStatus status) {
         List<WebLink> result = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/jid_thrillio?useSSL=false",
-                "root", ""); Statement stmt = conn.createStatement();) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                Statement stmt = conn.createStatement();) {
             String query = "SELECT * FROM WebLink WHERE download_status = " + status.ordinal();
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
