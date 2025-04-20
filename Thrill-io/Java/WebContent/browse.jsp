@@ -1,98 +1,107 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-	<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+	<!DOCTYPE html>
 	<html>
 
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-		<link rel="stylesheet" type="text/css" href="css/thrillio.css" />
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/thrillio.css" />
 		<script src="${pageContext.request.contextPath}/js/thrillio.js"></script>
-		<title>thrill.io</title>
+		<title>ShelfIt - Browse Books</title>
 	</head>
 
-	<body style="font-family:Arial;font-size:20px;">
-		<div style="height:65px;align:center;background: #2787db;font-family: Arial;color: white;"">
-		<br><b>
-		<a href="" style=" font-family:garamond;font-size:34px;margin:0px 0px 0px 10px;color:white;text-decoration: none;">
-			thrill.io</a></b>
+	<body>
+		<div class="app-container">
+			<header>
+				<div class="header-content">
+					<div class="logo">
+						<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" width="120" height="60">
+							<circle cx="200" cy="95" r="75" fill="#f0e8dd" />
+							<rect x="125" y="110" width="150" height="4" fill="#3d3d3d" rx="1" ry="1" />
+							<rect x="125" y="114" width="150" height="2" fill="#5a5a5a" rx="1" ry="1" />
+							<path d="M125 110 L125 95 A5,5 0 0 1 135,95 L135 110" fill="#5a5a5a" />
+							<path d="M275 110 L275 95 A5,5 0 0 0 265,95 L265 110" fill="#5a5a5a" />
+							<rect x="140" y="70" width="12" height="40" fill="#c2e7d9" rx="1" ry="1" />
+							<rect x="155" y="75" width="14" height="35" fill="#f6b3c5" rx="1" ry="1" />
+							<rect x="172" y="80" width="10" height="30" fill="#f0cc8b" rx="1" ry="1" />
+							<rect x="185" y="65" width="15" height="45" fill="#a9c7e8" rx="1" ry="1" />
+							<rect x="203" y="75" width="11" height="35" fill="#d9bbde" rx="1" ry="1" />
+							<rect x="217" y="82" width="13" height="28" fill="#b8e0d2" rx="1" ry="1" />
+							<rect x="233" y="70" width="9" height="40" fill="#f9d2b0" rx="1" ry="1" />
+							<rect x="245" y="78" width="14" height="32" fill="#c3e2dd" rx="1" ry="1" />
+							<path d="M190 45 L210 45 L210 65 L200 60 L190 65 Z" fill="#e6cbb3" stroke="#d9bda3"
+								stroke-width="1" />
+							<text x="200" y="155" font-family="Helvetica, Arial, sans-serif" font-size="30"
+								font-weight="500" text-anchor="middle" fill="#3d3d3d">ShelfIt</text>
+						</svg>
+					</div>
+					<nav class="main-nav">
+						<a href="${pageContext.request.contextPath}/bookmark" class="nav-link active">Browse</a>
+						<a href="${pageContext.request.contextPath}/bookmark/mybooks" class="nav-link">My Books</a>
+						<a href="${pageContext.request.contextPath}/auth/logout" class="nav-link">Logout</a>
+					</nav>
+				</div>
+			</header>
 
-			<div style="height:25px;background: #2787db;font-family: Arial;color: white;">
-				<b>
-					<!--<a style="font-size:16px;color:white;margin-left:100px;text-decoration:none;">You are logged in as: ${firstName}, ${lastName}</a>-->
-					<a href="<%=request.getContextPath()%>/bookmark"
-						style="font-size:16px;color:white;margin-left:1200px;text-decoration:none;">Browse</a>
-					<a href="<%=request.getContextPath()%>/bookmark/mybooks"
-						style="font-size:16px;color:white;margin-right: -900px;text-decoration:none;">My Books</a>
-					<a href="<%=request.getContextPath()%>/auth/logout"
-						style="font-size:16px;color:white;margin-left:950px;text-decoration:none;">Logout</a>
-				</b>
-			</div>
+			<main class="main-content">
+				<div class="user-info">
+					<p>Welcome, ${user.firstName} ${user.lastName}</p>
+				</div>
+
+				<div class="section-header">
+					<h1>Browse Books</h1>
+				</div>
+
+				<div class="books-container">
+					<div class="books-grid">
+						<c:forEach var="book" items="${books}">
+							<div class="book-card">
+								<div class="book-image">
+									<a href="${book.bookUrl}">
+										<img src="${book.imageUrl}" alt="${book.title}">
+									</a>
+								</div>
+								<div class="book-info">
+									<h2 class="book-title">${book.title}</h2>
+									<p class="book-author">By ${book.authors[0]}</p>
+									<div class="book-rating">
+										<span class="rating-stars">
+											<c:forEach begin="1" end="5" var="i">
+												<span
+													class="${i <= book.goodreadsRating ? 'star-filled' : 'star-empty'}">★</span>
+											</c:forEach>
+										</span>
+										<span class="rating-text">${book.goodreadsRating} out of 5</span>
+									</div>
+									<p class="book-year">Published in ${book.publicationYear}</p>
+									<div class="book-actions">
+										<a href="${pageContext.request.contextPath}/bookmark/save?bid=${book.id}"
+											class="button button-primary">Add to Collection</a>
+										<a href="${book.bookUrl}" class="button button-secondary">View on Goodreads</a>
+									</div>
+								</div>
+							</div>
+						</c:forEach>
+					</div>
+				</div>
+
+				<div class="add-book-section">
+					<h2>Add New Book</h2>
+					<form method="POST" action="${pageContext.request.contextPath}/bookmark/addbook"
+						class="add-book-form">
+						<div class="input-group">
+							<label for="book_url">Goodreads Book URL</label>
+							<input type="text" name="book_url" id="book_url"
+								placeholder="https://www.goodreads.com/book/show/...">
+						</div>
+						<div class="form-actions">
+							<button type="submit" name="submitNewBook" class="button button-primary">Add Book</button>
+						</div>
+					</form>
+				</div>
+			</main>
 		</div>
-		<br><br>
-		<p>You are logged in as: ${user.firstName} ${user.lastName}</p>
-
-		<h2>Books</h2>
-
-		<table>
-			<c:forEach var="book" items="${books}">
-				<tr>
-					<td>
-						<a href="${book.bookUrl}"><img src="${book.imageUrl}" width="175" height="250"></a>
-					</td>
-
-					<td style="color:gray;">
-						<%--Title: <span style="color: #B13100;">${book.title}</span>
-							<br><br>--%>
-							Title: <span style="color: #B13100;">${book.title}</span>
-							<br><br>
-							By: <span style="color: #B13100;">${book.authors[0]}</span>
-							<br><br>
-							Average Rating: <span style="color: #B13100;">${book.goodreadsRating} stars out of 5</span>
-							<br><br>
-							Publication Year: <span style="color: #B13100;">${book.publicationYear}</span>
-							<br><br>
-							<!--Genre: <span style="color: #B13100;">${book.genre}</span>
-			 <br><br>-->
-							<!--Book URL: <span style="color: #B13100;">${book.bookUrl}</span>
-			 <br><br>
-			 URL: <span style="color: #B13100;"><a href="<c:url value = "${book.bookUrl}"/>">Goodreads</a></span>
-			 <br><br>-->
-							<a href="<%=request.getContextPath()%>/bookmark/save?bid=${book.id}"
-								style="font-size:18px;color:#0058A6;font-weight:bold;text-decoration:none">Save</a>
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-				</tr>
-
-			</c:forEach>
-
-		</table>
-
-
-		<form method="POST" action="<%=request.getContextPath()%>/bookmark/addbook">
-			<table>
-
-				<!--<tr>
-	    		<td><label>Image URL:</label></td>
-        		<td>
-        			<input type="text" name="image_url"><br>        			
-        		</td>
-        	</tr>-->
-				<tr>
-					<td><label>Book URL:</label></td>
-					<td>
-						<input type="text" name="book_url"><br>
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td><a href="<%=request.getContextPath()%>/bookmark"><input type="submit" name="submitNewBook"
-								value="Add Book"></a></td>
-				</tr>
-			</table>
-		</form>
-
 	</body>
 
 	</html>
