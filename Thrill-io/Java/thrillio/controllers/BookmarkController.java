@@ -13,10 +13,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-// Added missing imports
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import thrillio.constants.KidFriendlyStatus;
@@ -73,122 +73,170 @@ public class BookmarkController extends HttpServlet {
             } else if(request.getServletPath().contains("addbook")) {
                 dispatcher = request.getRequestDispatcher("/browse.jsp");
                 String bookUrl = request.getParameter("book_url");
-                long newBookId = -1; // Initialize with error state
-                String errorMessage = null; // To store potential error messages
+                long newBookId = -1;
+                String errorMessage = null;
                 
-                // Declare variables outside the try block to ensure correct scope
                 Document doc = null;
-                Elements titleLabel = null;
-                Elements ratingValue = null;
-                String publicationYearRow = "";
-                Elements image = null;
-                String authorNameString = "";
                 String title = "";
                 String goodreadsRating = "";
                 String publisherName = "";
                 String imageUrl = "";
                 String authorName = "";
+                int publicationYear = 0;
 
                 try {
-                    doc = Jsoup.connect(bookUrl).get();
-                    titleLabel = doc.select("h1");
-                    ratingValue = doc.select("span[itemprop=\"ratingValue\"]");
-                    publicationYearRow = doc.select(".row:nth-child(2)").text();
-                    image = doc.select("div.editionCover > img");
-                    authorNameString = doc.select("div.authorname__container").text();
-                
-                    title = titleLabel.text();
-                    goodreadsRating = ratingValue.text();
-                    publisherName = ""; // Initialize here before conditional logic
-                
-                if(publicationYearRow.contains("-") && publicationYearRow.contains("(")) {
-                    Pattern p = Pattern.compile("[a-zA-Z]{1,}-[a-zA-Z]{1,}");
-                    Matcher m = p.matcher(publicationYearRow);
+                    System.out.println("Fetching URL: " + bookUrl);
+                    doc = Jsoup.connect(bookUrl)
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+                        .timeout(10000)
+                        .get();
                     
-                    if (m.find()) {
-                        publisherName = StringUtils.substringBefore(publicationYearRow, " (");
-                        publisherName = StringUtils.substringAfter(publisherName, "by ");
-                    } else {
-                        publisherName = StringUtils.substringBefore(publicationYearRow, " - (");
-                        publisherName = StringUtils.substringAfter(publisherName, "by ");
+                    // Debug: Print the raw HTML
+                    System.out.println("HTML Title found: " + doc.title());
+                    
+                    // Updated selectors for new Goodreads structure
+                    title = "";
+                    // Try multiple selectors for title
+                    Elements titleElements = doc.select("h1.Text__title1");
+                    if (titleElements.isEmpty()) {
+                        titleElements = doc.select("h1[data-testid='bookTitle']");
                     }
-                } else {
-                    publisherName = StringUtils.substringBefore(publicationYearRow, " (");
-                    publisherName = StringUtils.substringAfter(publisherName, "by ");
-                }
-                
-                // Assign to existing variable, don't redeclare
-                imageUrl = image.attr("abs:src"); 
-                // Assign to existing variable, don't redeclare
-                authorName = ""; 
-                
-                if(authorNameString.contains(",")) {
-                    if(authorNameString.contains("(")) {
-                        if(authorNameString.indexOf('(') < authorNameString.indexOf(',')) {
-                            authorName = StringUtils.substringBefore(authorNameString, " (");
-                        } else {
-                            authorName = StringUtils.substringBefore(authorNameString, ",");
+                    if (titleElements.isEmpty()) {
+                        titleElements = doc.select("h1");
+                    }
+                    if (!titleElements.isEmpty()) {
+                        title = titleElements.first().text().trim();
+                    }
+                    
+                    // Author name
+                    authorName = "";
+                    Elements authorElements = doc.select("span.ContributorLink__name");
+                    if (authorElements.isEmpty()) {
+                        authorElements = doc.select("a.ContributorLink");
+                    }
+                    if (authorElements.isEmpty()) {
+                        authorElements = doc.select(".authorName__container");
+                    }
+                    if (!authorElements.isEmpty()) {
+                        authorName = authorElements.first().text().trim();
+                    }
+                    
+                    // Rating
+                    goodreadsRating = "0.0";
+                    Elements ratingElements = doc.select("div.RatingStatistics__rating");
+                    if (ratingElements.isEmpty()) {
+                        ratingElements = doc.select("div[data-testid='ratingStats'] span");
+                    }
+                    if (ratingElements.isEmpty()) {
+                        ratingElements = doc.select("span[itemprop='ratingValue']");
+                    }
+                    if (!ratingElements.isEmpty()) {
+                        String ratingText = ratingElements.first().text().trim();
+                        try {
+                            goodreadsRating = ratingText.replaceAll("[^0-9.]", "");
+                        } catch (Exception e) {
+                            System.out.println("Error parsing rating: " + e.getMessage());
                         }
                     }
-                } else {
-                    authorName = StringUtils.substringBefore(authorNameString, " (");
-                }
                     
-                    // Print the value of publicationYearRow to the console (temporary)
-                    System.out.println("publicationYearRow: " + publicationYearRow);
-
-                    // Use regex to find the first 4-digit number in the publicationYearRow text
-                    Pattern yearPattern = Pattern.compile("\\b(\\d{4})\\b"); // Matches a 4-digit number as a whole word
-                    Matcher yearMatcher = yearPattern.matcher(publicationYearRow);
+                    // Image URL
+                    imageUrl = "";
+                    Elements imageElements = doc.select("img.ResponsiveImage");
+                    if (imageElements.isEmpty()) {
+                        imageElements = doc.select("div.bookCoverPrimary img");
+                    }
+                    if (imageElements.isEmpty()) {
+                        imageElements = doc.select(".editionCover img");
+                    }
+                    if (!imageElements.isEmpty()) {
+                        imageUrl = imageElements.first().attr("src");
+                        if (!imageUrl.startsWith("http")) {
+                            imageUrl = "https:" + imageUrl;
+                        }
+                    }
                     
-                    if (yearMatcher.find()) {
-                        String yearStr = yearMatcher.group(1); // Get the matched 4-digit year
-                        // Check if essential data was scraped
-                        if (StringUtils.isBlank(title) || StringUtils.isBlank(authorName)) {
-                            errorMessage = "Could not extract book details from the provided URL. Please ensure it's a valid Goodreads book URL.";
-                        } else {
-                            try {
-                                 // Ensure rating is parseable, handle potential NumberFormatException here too
-                                double rating = StringUtils.isBlank(goodreadsRating) ? 0.0 : Double.parseDouble(goodreadsRating); 
-                                newBookId = BookmarkManager.getInstance().addNewBookToDatabase(title, authorName, bookUrl, imageUrl, publisherName, 
-                                        Integer.parseInt(yearStr), rating);
-                                if (newBookId == -1) {
-                                    errorMessage = "Failed to add the book to the database. Please check server logs.";
+                    // Publisher and Publication Year (more complex extraction)
+                    publisherName = "";
+                    publicationYear = 0;
+                    
+                    // Try to extract publication details from the page
+                    Elements detailsElements = doc.select("div.DetailsLayoutRightParagraph");
+                    if (!detailsElements.isEmpty()) {
+                        for (Element details : detailsElements) {
+                            String text = details.text();
+                            System.out.println("Details element text: " + text);
+                            
+                            // Extract year
+                            Pattern yearPattern = Pattern.compile("\\b(19|20)\\d{2}\\b");
+                            Matcher yearMatcher = yearPattern.matcher(text);
+                            if (yearMatcher.find()) {
+                                try {
+                                    publicationYear = Integer.parseInt(yearMatcher.group(0));
+                                    System.out.println("Found publication year: " + publicationYear);
+                                } catch (NumberFormatException e) {
+                                    System.out.println("Error parsing year: " + e.getMessage());
                                 }
-                            } catch (NumberFormatException nfe) {
-                                System.err.println("Error parsing rating or year: " + goodreadsRating + ", " + yearStr);
-                                nfe.printStackTrace();
-                                errorMessage = "Could not parse rating or year from the provided URL.";
+                            }
+                            
+                            // Extract publisher
+                            if (text.contains("by")) {
+                                int byIndex = text.indexOf("by");
+                                if (byIndex != -1) {
+                                    String potentialPublisher = text.substring(byIndex + 2).trim();
+                                    if (potentialPublisher.contains("(")) {
+                                        potentialPublisher = potentialPublisher.substring(0, potentialPublisher.indexOf("(")).trim();
+                                    }
+                                    publisherName = potentialPublisher;
+                                    System.out.println("Found publisher: " + publisherName);
+                                }
                             }
                         }
+                    }
+                    
+                    // Debug information
+                    System.out.println("Extracted data:");
+                    System.out.println("Title: " + title);
+                    System.out.println("Author: " + authorName);
+                    System.out.println("Rating: " + goodreadsRating);
+                    System.out.println("Image URL: " + imageUrl);
+                    System.out.println("Publisher: " + publisherName);
+                    System.out.println("Year: " + publicationYear);
+                    
+                    if (StringUtils.isBlank(title) || StringUtils.isBlank(authorName)) {
+                        errorMessage = "Could not extract book details from the provided URL. Please ensure it's a valid Goodreads book URL. (Title: '" + title + "', Author: '" + authorName + "')";
                     } else {
-                        // No 4-digit year found in the string
-                        errorMessage = "Could not determine the publication year from the provided URL.";
+                        try {
+                            double rating = StringUtils.isBlank(goodreadsRating) ? 0.0 : Double.parseDouble(goodreadsRating);
+                            newBookId = BookmarkManager.getInstance().addNewBookToDatabase(title, authorName, bookUrl, imageUrl, publisherName, 
+                                    publicationYear, rating);
+                            if (newBookId == -1) {
+                                errorMessage = "Failed to add the book to the database. Please check server logs.";
+                            }
+                        } catch (NumberFormatException nfe) {
+                            System.err.println("Error parsing rating: " + goodreadsRating);
+                            nfe.printStackTrace();
+                            errorMessage = "Could not parse rating from the provided URL.";
+                        }
                     }
 
                 } catch (IOException e) {
                     System.err.println("Error connecting to or parsing URL: " + bookUrl);
                     e.printStackTrace();
-                    errorMessage = "Error accessing the provided URL. Please check if it's correct and accessible.";
-                } catch (NumberFormatException e) {
-                    System.err.println("Error parsing rating or year from URL: " + bookUrl);
+                    errorMessage = "Error accessing the provided URL. Please check if it's correct and accessible. Error: " + e.getMessage();
+                } catch (Exception e) {
+                    System.err.println("Unexpected error processing book URL: " + bookUrl);
                     e.printStackTrace();
-                    errorMessage = "Could not parse rating or year from the provided URL.";
-                } catch (Exception e) { // Catch any other unexpected errors during scraping/processing
-                     System.err.println("Unexpected error processing book URL: " + bookUrl);
-                     e.printStackTrace();
-                     errorMessage = "An unexpected error occurred while adding the book.";
+                    errorMessage = "An unexpected error occurred while adding the book: " + e.getMessage();
                 }
                 
-                // Set error attribute if something went wrong
                 if (errorMessage != null) {
                     request.setAttribute("addBookError", errorMessage);
                 } else {
-                     request.setAttribute("addBookSuccess", "Book '" + title + "' added successfully!"); // Optional success message
+                    request.setAttribute("addBookSuccess", "Book '" + title + "' added successfully!");
                 }
 
                 Collection<Bookmark> bookList = BookmarkManager.getInstance().getBooks(false, userId);
-                request.setAttribute("books", bookList); // Refresh book list regardless of add success/failure
+                request.setAttribute("books", bookList);
                 
                 User userInfo = UserManager.getInstance().getUser(userId);
                 request.setAttribute("user", userInfo);
