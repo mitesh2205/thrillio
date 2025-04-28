@@ -8,7 +8,6 @@
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/thrillio.css" />
 			<script src="${pageContext.request.contextPath}/js/thrillio.js"></script>
-			<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 			<title>ShelfIt - Login</title>
 		</head>
 
@@ -16,11 +15,10 @@
 			<div class="login-container">
 				<div class="image-section">
 					<div class="image-content">
-						<h1>Welcome Back.</h1>
-						<p>Your personal book collection awaits</p>
+						<h1>Hello World.</h1>
+						<p>Organize your reading collection in one beautiful place</p>
 					</div>
 				</div>
-
 				<div class="form-section">
 					<div class="logo">
 						<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" width="120" height="60">
@@ -48,7 +46,8 @@
 						<h2>Log In</h2>
 					</div>
 
-					<form name="loginForm" method="POST" action="${pageContext.request.contextPath}/auth">
+					<form id="login-form" name="loginForm" method="POST"
+						action="${pageContext.request.contextPath}/auth">
 						<c:if test="${not empty login_error}">
 							<div class="error-message">${login_error}</div>
 						</c:if>
@@ -56,8 +55,8 @@
 						<div class="input-group">
 							<label for="email">EMAIL ADDRESS <span class="required-field">*</span></label>
 							<input type="email" name="email" id="email" value="" pattern=".+\.[A-Za-z]{2,}($|\n)"
-								oninput="printLoginEmailErrorOnWebpage()" required>
-							<span class="emailformat_error"></span>
+								required>
+							<span id="login-email-error" class="emailformat_error"></span>
 						</div>
 
 						<div class="input-group">
@@ -65,8 +64,7 @@
 							<input type="password" name="password" id="password" value="" required>
 						</div>
 
-						<button type="submit" name="submitLoginForm" class="login-btn"
-							onclick="validateLoginForm()">LOGIN</button>
+						<button type="submit" name="submitLoginForm" class="login-btn">LOGIN</button>
 					</form>
 
 					<div class="signup-section">

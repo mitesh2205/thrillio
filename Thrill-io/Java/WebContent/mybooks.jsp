@@ -1,5 +1,4 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
 	<!DOCTYPE html>
 	<html>
 
@@ -47,28 +46,28 @@
 
 			<main class="main-content">
 				<div class="user-info">
-					<p>Welcome, ${user.firstName} ${user.lastName}</p>
+					You are logged in as: <strong>${user.firstName} ${user.lastName}</strong>
 				</div>
 
 				<div class="section-header">
-					<h1>My Collection</h1>
+					<h1>My Books</h1>
 				</div>
 
 				<div class="books-container">
 					<c:choose>
 						<c:when test="${!empty(books)}">
-							<div class="books-grid">
+							<div class="book-list">
 								<c:forEach var="book" items="${books}">
-									<div class="book-card">
-										<div class="book-image">
+									<div class="book-list-item">
+										<div class="book-cover">
 											<a href="${book.bookUrl}">
 												<img src="${book.imageUrl}" alt="${book.title}">
 											</a>
 										</div>
-										<div class="book-info">
-											<h2 class="book-title">${book.title}</h2>
-											<p class="book-author">By ${book.authors[0]}</p>
-											<div class="book-rating">
+										<div class="book-details">
+											<div class="book-title">Title: ${book.title}</div>
+											<div class="book-author">By ${book.authors[0]}</div>
+											<div class="book-rating" data-rating="${book.goodreadsRating}">
 												<span class="rating-stars">
 													<c:forEach begin="1" end="5" var="i">
 														<span
@@ -77,12 +76,11 @@
 												</span>
 												<span class="rating-text">${book.goodreadsRating} out of 5</span>
 											</div>
-											<p class="book-year">Published in ${book.publicationYear}</p>
+											<div class="book-year">Publication Year: ${book.publicationYear}</div>
 											<div class="book-actions">
 												<a href="${pageContext.request.contextPath}/bookmark/remove?bid=${book.id}"
-													class="button button-secondary">Remove from Collection</a>
-												<a href="${book.bookUrl}" class="button button-primary">View on
-													Goodreads</a>
+													class="btn btn-secondary">Remove</a>
+												<a href="${book.bookUrl}" class="btn btn-primary">View on Goodreads</a>
 											</div>
 										</div>
 									</div>
@@ -94,8 +92,8 @@
 								<div class="empty-state-icon">📚</div>
 								<h2>Your Collection is Empty</h2>
 								<p>Start adding books to build your personal library!</p>
-								<a href="${pageContext.request.contextPath}/bookmark"
-									class="button button-primary">Browse Books</a>
+								<a href="${pageContext.request.contextPath}/bookmark" class="btn btn-primary">Browse
+									Books</a>
 							</div>
 						</c:otherwise>
 					</c:choose>

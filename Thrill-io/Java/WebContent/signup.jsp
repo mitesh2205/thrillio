@@ -8,7 +8,6 @@
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/thrillio.css" />
 			<script src="${pageContext.request.contextPath}/js/thrillio.js"></script>
-			<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 			<title>ShelfIt - Sign Up</title>
 		</head>
 
@@ -16,11 +15,10 @@
 			<div class="login-container">
 				<div class="image-section">
 					<div class="image-content">
-						<h1>Join Us Today.</h1>
-						<p>Start your reading journey with ShelfIt</p>
+						<h1>Join ShelfIt.</h1>
+						<p>Create your account and start organizing your reading collection today</p>
 					</div>
 				</div>
-
 				<div class="form-section">
 					<div class="logo">
 						<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" width="120" height="60">
@@ -46,9 +44,11 @@
 
 					<div class="register-header">
 						<h2>Create Account</h2>
+						<p>Join our community of book lovers</p>
 					</div>
 
-					<form name="signUpForm" method="POST" action="${pageContext.request.contextPath}/auth/signup">
+					<form id="signup-form" name="signUpForm" method="POST"
+						action="${pageContext.request.contextPath}/auth/signup">
 						<c:if test="${not empty signup_error}">
 							<div class="error-message">${signup_error}</div>
 						</c:if>
@@ -56,8 +56,8 @@
 						<div class="input-group">
 							<label for="signup_email">EMAIL ADDRESS <span class="required-field">*</span></label>
 							<input type="email" name="signup_email" id="signup_email" pattern=".+\.[A-Za-z]{2,}($|\n)"
-								oninput="printSignupEmailErrorOnWebpage()" required>
-							<span class="emailformat_error"></span>
+								required>
+							<span id="signup-email-error" class="emailformat_error"></span>
 							<span class="status"></span>
 						</div>
 
@@ -88,8 +88,7 @@
 							</select>
 						</div>
 
-						<button type="submit" name="submitRegistrationForm" class="login-btn"
-							onclick="validateSignUpForm()">CREATE ACCOUNT</button>
+						<button type="submit" name="submitRegistrationForm" class="login-btn">CREATE ACCOUNT</button>
 					</form>
 
 					<div class="signup-section">
